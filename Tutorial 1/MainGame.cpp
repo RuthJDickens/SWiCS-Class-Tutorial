@@ -1,10 +1,13 @@
 #define PLAY_IMPLEMENTATION
 #include "Play.h"
+#include "MainGame.h"
+#include "GameObject.h"
 #include "Laser.h"
 #include "Saucer.h"
-#include "MainGame.h"
+#include "Player.h"
 
 GameState gState;
+const Point2f PLAYER_STARTPOS = { 640, 650 };
 
 // The entry point for a Windows program
 void MainGameEntry( PLAY_IGNORE_COMMAND_LINE )
@@ -13,6 +16,7 @@ void MainGameEntry( PLAY_IGNORE_COMMAND_LINE )
     Play::CentreAllSpriteOrigins();
     Play::LoadBackground( "Data\\Backgrounds\\background.png" );
     Saucer::SpawnWave(gState);
+    new Player(PLAYER_STARTPOS);
     //Play::StartAudioLoop( "music" );
 }
 
@@ -20,17 +24,18 @@ void MainGameEntry( PLAY_IGNORE_COMMAND_LINE )
 bool MainGameUpdate( float elapsedTime )
 {
     gState.time += elapsedTime;
+    std::vector<GameObject*> vSaucers;
 
     Play::DrawBackground();
-    if (gState.saucers.size() == 0)
+    GameObject::GetObjectList(GameObject::Type::OBJ_SAUCER, vSaucers);
+    if (vSaucers.size() == 0)
     {
         gState.counter = 0;
         gState.difficulty++;
         Saucer::SpawnWave(gState);
     }
-    Laser::UpdateAll(gState);
-    UpdatePlayer();
-    Saucer::UpdateAll(gState);
+    GameObject::UpdateAll(gState);
+    GameObject::DrawAll(gState);
     Play::DrawFontText( "105px", "SCORE: " + std::to_string( gState.score ),
         { DISPLAY_WIDTH / 2, 50 }, Play::CENTRE );
     Play::PresentDrawingBuffer();
@@ -42,31 +47,6 @@ int MainGameExit( void )
 {
     Play::DestroyManager();
     return PLAY_OK;
-}
-
-void UpdatePlayer( void )
-{
-    //Player movement
-    if( Play::KeyDown( VK_LEFT ) )
-        gState.playerPos.x -= gState.playerSpeed;
-
-    if( Play::KeyDown( VK_RIGHT ) )
-        gState.playerPos.x += gState.playerSpeed;
-
-    if( Play::KeyPressed( VK_SPACE ) )
-    {
-        //Spawn laser at player
-        Laser l = Laser({ gState.playerPos.x, gState.playerPos.y - 50 });
-        gState.lasers.push_back(l);
-        if (gState.score >= l.GetCost())
-        {
-           gState.score -= l.GetCost(); 
-        }
-        Play::PlayAudio("laser");
-    }
-
-    float yWobble = sin( gState.time * PLAY_PI ) * 3;
-    Play::DrawSprite( Play::GetSpriteId( "Rocket" ), { gState.playerPos.x, gState.playerPos.y + yWobble }, (int)( 2.0f * gState.time ) );
 }
 
 bool HasCollided( Point2f pos1, Point2f pos2 )

@@ -1,29 +1,20 @@
 #pragma once
-#include "Play.h"
-#include "MainGame.h"
 
-class Laser
+class Laser: public GameObject
 {
 private:
-    bool m_active{ true };
-    Point2f m_pos{ 0,0 };
-    Vector2f m_velocity{ 0,20 };
-    int m_cost = 100;
+    int m_cost{ 0 };
+    int m_speed{ 20 };
 
 public:
     Laser(Point2f pos);
-    //Getters
-    bool IsActive();
-    Point2f GetPosition();
-    Vector2f GetVelocity();
-    int GetCost();
-    //Setters
-    void SetInactive();
-    void SetPosition(Point2f pos);
-    void SetVelocity(Vector2f speed);
-    void SetCost(int cost);
+    //Getters and Setters
+    void SetCost(int cost) {m_cost = cost;};
+    int GetCost() const { return m_cost; };
+    void SetSpeed(int speed) { m_speed = speed; };
+    int GetSpeed() const { return m_speed; };
     //Update
-    static void UpdateAll(GameState& state);
     void Update(GameState& state);
+    void Draw(GameState& state);
 };
 

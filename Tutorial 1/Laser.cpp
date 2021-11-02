@@ -1,91 +1,47 @@
+#include "Play.h"
+#include "MainGame.h"
+#include "GameObject.h"
 #include "Laser.h"
 #include "Saucer.h"
-#include "MainGame.h"
 
 //Constructor
 Laser::Laser(Point2f pos)
 {
 	m_pos = pos;
-}
-
-//Getters
-bool Laser::IsActive()
-{
-	return m_active;
-}
-
-Point2f Laser::GetPosition()
-{
-	return m_pos;
-}
-
-Vector2f Laser::GetVelocity()
-{
-	return m_velocity;
-}
-
-int Laser::GetCost()
-{
-	return m_cost;
-}
-
-//Setters
-void Laser::SetInactive()
-{
-	m_active = false;
-}
-
-void Laser::SetPosition(Point2f pos)
-{
-	m_pos = pos;
-}
-
-void Laser::SetVelocity(Vector2f speed)
-{
-	m_velocity = speed;
-}
-
-void Laser::SetCost(int cost)
-{
-	m_cost = cost;
+    m_type = OBJ_LASER;
 }
 
 //Update
-void Laser::UpdateAll(GameState& state)
+void Laser::Update(GameState& state)
 {
-    for (Laser& l : state.lasers)
+    //Collision - find objects of type Saucer
+    std::vector<GameObject*> vSaucers;
+    GetObjectList(OBJ_SAUCER, vSaucers);
+    for (GameObject* p : vSaucers)
     {
-        l.Update(state);
+       Saucer* s = dynamic_cast<Saucer*>(p);
+       if (s != nullptr)
+       {
+          if (s->IsDead() == false && HasCollided(m_pos, s->GetPosition()))
+          {
+             m_active = false;
+             s->SetDead();
+             state.score += s->GetPoints();
+             Play::PlayAudio("clang");
+          }
+       }
     }
-    for (int n = 0; n < state.lasers.size(); n++)
+    m_velocity = { 0, m_speed };
+    m_pos -= m_velocity;
+
+    //Set inactive if offscreen
+    if (m_active && m_pos.y < 0)
     {
-        if (!state.lasers[n].IsActive())
-        {
-            state.lasers[n].SetPosition({ 0, -50 }); // Hide the laser off screen!
-            state.lasers.erase(state.lasers.begin() + n);
-        }
+       m_active = false;
     }
 }
 
-void Laser::Update(GameState& state)
+void Laser::Draw(GameState& state)
 {
-    if (IsActive())
-    {
-        //Movement
-        SetPosition(GetPosition() - GetVelocity());
-        Play::DrawSprite(Play::GetSpriteId("Laser"), GetPosition(), 0);
-
-        //Collision
-        for (Saucer& s : state.saucers)
-        {
-            if (HasCollided(GetPosition(), s.GetPosition()))
-            {
-                SetInactive();
-                s.SetInactive();
-                state.score += s.GetPoints();
-
-                Play::PlayAudio("clang");
-            }
-        }
-    }
+    Play::DrawSprite(Play::GetSpriteId("Laser"), GetPosition(), 0);
 }

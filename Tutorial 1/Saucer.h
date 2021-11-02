@@ -1,15 +1,10 @@
 #pragma once
-#include "Play.h"
-#include "MainGame.h"
 
-class Saucer
+class Saucer: public GameObject
 {
 private:
-    bool m_active{ true };
     bool m_isDead{ false };
-    Point2f m_startPos{ 0,0 };
-    Point2f m_pos{ 0,0 };
-    Vector2f m_velocity{ 0,0 };
+    Point2f m_startPos{ 1500, 125 };
     float m_speed{ 5 };
     float m_rot{ 0 };
     int m_points{ 1000 };
@@ -18,28 +13,22 @@ private:
 public:
     Saucer(Point2f pos);
     //Getters
-    bool IsActive();
-    bool IsDead();
-    Point2f GetPosition();
-    Point2f GetStartPosition();
-    Vector2f GetVelocity();
-    float GetSpeed();
-    float GetRotation();
-    int GetPoints();
-    int GetWidth();
+    bool IsDead() { return m_isDead; };
+    Point2f GetStartPosition() { return m_startPos; };
+    float GetSpeed() { return m_speed; };
+    float GetRotation() { return m_rot; };
+    int GetPoints() { return m_points; };
+    int GetWidth() { return m_width; };
     //Setters
-    void SetInactive();
-    void SetDead();
-    void SetPosition(Point2f pos);
-    void SetStartPosition(Point2f pos);
-    void SetVelocity(Vector2f speed);
-    void SetSpeed(float speed);
-    void SetRotation(float rot);
-    void SetPoints(int points);
-    void SetWidth(int width);
+    void SetDead() { m_isDead = true; };
+    void SetStartPosition(Point2f pos) { m_startPos = pos; };
+    void SetSpeed(float speed) { m_speed = speed; };
+    void SetRotation(float rot) { m_rot = rot; };
+    void SetPoints(int points) { m_points = points; };
+    void SetWidth(int width) { m_width = width; };
     //Update
-    static void UpdateAll(GameState& state);
     void Update(GameState& state);
+    void Draw(GameState& state);
     static void SpawnWave(GameState& state);
 
 };

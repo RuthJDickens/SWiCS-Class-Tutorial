@@ -1,161 +1,70 @@
-#include "Saucer.h"
+#include "Play.h"
 #include "MainGame.h"
+#include "GameObject.h"
+#include "Saucer.h"
+
+const Point2f SAUCER_START_POS = { 1500, 125 };
+const int OFF_SCREEN_TEST = -50;
 
 //Constructor
-Saucer::Saucer(Point2f pos) : m_startPos{ SAUCER_START_POS }
+Saucer::Saucer(Point2f pos)
 {
 	m_pos = pos;
-}
-
-//Getters
-bool Saucer::IsActive()
-{
-    return m_active;
-}
-
-bool Saucer::IsDead()
-{
-    return m_isDead;
-}
-
-Point2f Saucer::GetPosition()
-{
-    return m_pos;
-}
-
-Point2f Saucer::GetStartPosition()
-{
-    return m_startPos;
-}
-Vector2f Saucer::GetVelocity()
-{
-    return m_velocity;
-}
-
-float Saucer::GetSpeed()
-{
-    return m_speed;
-}
-
-float Saucer::GetRotation()
-{
-    return m_rot;
-}
-
-int Saucer::GetPoints()
-{
-    return m_points;
-}
-
-int Saucer::GetWidth()
-{
-    return m_width;
-}
-
-//Setters
-void Saucer::SetInactive()
-{
-    m_active = false;
-}
-
-void Saucer::SetDead()
-{
-    m_isDead = true;
-}
-
-void Saucer::SetPosition(Point2f pos)
-{
-    m_pos = pos;
-}
-
-void Saucer::SetStartPosition(Point2f pos)
-{
-    m_startPos = pos;
-}
-void Saucer::SetVelocity(Vector2f speed)
-{
-    m_velocity = speed;
-}
-
-void Saucer::SetSpeed(float speed)
-{
-    m_speed = speed;
-}
-
-void Saucer::SetRotation(float rot)
-{
-    m_rot = rot;
-}
-
-void Saucer::SetPoints(int points)
-{
-    m_points = points;
-}
-
-void Saucer::SetWidth(int width)
-{
-    m_width = width;
-}
-
-//Update
-void Saucer::UpdateAll(GameState& state)
-{
-    for (Saucer& s : state.saucers)
-    {
-        s.Update(state);
-    }
-
-    for (int n = 0; n < state.saucers.size(); n++)
-    {
-        if (state.saucers[n].IsDead())
-        {
-            state.saucers.erase(state.saucers.begin() + n);
-        }
-    }
+    m_type = OBJ_SAUCER;
 }
 
 void Saucer::Update(GameState& state)
 {
-    if (!IsActive())
+    //If hit by laser, set spinning trajectory
+    if (m_isDead)
     {
-        SetRotation(GetRotation() + 0.05f);
-        SetVelocity({ -GetSpeed(), GetSpeed() });
-        if (GetPosition().y > DISPLAY_HEIGHT + 50)
+        m_rot += 0.05f;
+        m_velocity = { -m_speed, m_speed };
+        //Set inactive when off bottom of screen
+        if (m_pos.y > DISPLAY_HEIGHT + 50)
         {
-            SetDead();
+            m_active = false;
         }
     }
-    else if (GetPosition().x < OFF_SCREEN_TEST)
+    //Restart when off side of screen and hasn't been hit
+    else if (m_pos.x < OFF_SCREEN_TEST)
     {
-        SetPosition(GetStartPosition());
+        m_pos = m_startPos;
     }
-    SetPosition(GetPosition() + GetVelocity());
-
-    Play::DrawSpriteRotated(Play::GetSpriteId("Saucer"), GetPosition(), 0, GetRotation(), 1.0f);
+    //Movement
+    m_pos += m_velocity;
 }
 
 void Saucer::SpawnWave(GameState& state)
 {
     for (int n = 0; n < state.difficulty; n++)
     {
-        Saucer s = Saucer(SAUCER_START_POS);
+        Saucer* s = new Saucer(SAUCER_START_POS);
+        //Spawning subsequent saucers next to each each and not on top of each other
         if (state.counter >= 1)
         {
-            s.SetPosition({ s.GetPosition().x + s.GetWidth() * state.counter, s.GetPosition().y });
+            s->SetPosition({ s->GetPosition().x + s->GetWidth() * state.counter, s->GetPosition().y });
+
+            //After level 5 saucers start spawning lower down the screen
             if (state.difficulty >= 5 && state.counter % 3)
             {
-                s.SetPosition({ s.GetPosition().x, s.GetPosition().y + 300 });
+                s->SetPosition({ s->GetPosition().x, s->GetPosition().y + 300 });
             }
-            s.SetStartPosition(s.GetPosition());
+            //Saucers remember where they spawned
+            s->SetStartPosition(s->GetPosition());
         }
+        //Every other Saucer moves 1.5x faster
         if (state.counter % 2)
         {
-            s.SetSpeed(s.GetSpeed() * 1.5);
+            s->SetSpeed(s->GetSpeed() * 1.5);
         }
 
-        s.SetVelocity({ -s.GetSpeed(), 0 });
-        
-        state.saucers.push_back(s);
+        s->SetVelocity({ -s->GetSpeed(), 0 });
         state.counter++;
     }
+}
+
+void Saucer::Draw(GameState& state)
+{
+    Play::DrawSpriteRotated(Play::GetSpriteId("Saucer"), GetPosition(), 0, GetRotation(), 1.0f);
 }
