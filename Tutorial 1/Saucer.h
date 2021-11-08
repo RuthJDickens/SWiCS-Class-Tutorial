@@ -2,15 +2,16 @@
 
 class Saucer: public GameObject
 {
-private:
+protected:
     bool m_isDead{ false };
-    Point2f m_startPos{ 1500, 125 };
+    Point2f m_startPos{ 1500, 300 };
     float m_speed{ 5 };
     float m_rot{ 0 };
     int m_points{ 1000 };
     int m_width{120};
 
 public:
+    Saucer();
     Saucer(Point2f pos);
     //Getters
     bool IsDead() { return m_isDead; };

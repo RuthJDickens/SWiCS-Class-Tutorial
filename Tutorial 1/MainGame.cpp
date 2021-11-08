@@ -4,6 +4,7 @@
 #include "GameObject.h"
 #include "Laser.h"
 #include "Saucer.h"
+#include "RedSaucer.h"
 #include "Player.h"
 
 GameState gState;
@@ -17,7 +18,7 @@ void MainGameEntry( PLAY_IGNORE_COMMAND_LINE )
     Play::LoadBackground( "Data\\Backgrounds\\background.png" );
     Saucer::SpawnWave(gState);
     new Player(PLAYER_STARTPOS);
-    //Play::StartAudioLoop( "music" );
+    Play::StartAudioLoop( "music" );
 }
 
 // Called by the PlayBuffer once for each frame of the game (60 times a second!)
@@ -33,6 +34,7 @@ bool MainGameUpdate( float elapsedTime )
         gState.counter = 0;
         gState.difficulty++;
         Saucer::SpawnWave(gState);
+        RedSaucer::SpawnWave(gState);
     }
     GameObject::UpdateAll(gState);
     GameObject::DrawAll(gState);

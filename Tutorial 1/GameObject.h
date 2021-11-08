@@ -53,7 +53,7 @@ protected:
     bool m_active{ true };
     Point2f m_pos{ 0, 0 };
     Vector2f m_velocity{ 0, 0 };
-    int spriteId{ -1 };
+    int m_spriteId{ -1 };
 
     int m_drawOrder{ 0 };
     int m_updateOrder{ 0 };

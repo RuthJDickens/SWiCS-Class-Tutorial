@@ -9,6 +9,7 @@ Laser::Laser(Point2f pos)
 {
 	m_pos = pos;
     m_type = OBJ_LASER;
+    m_spriteId = Play::GetSpriteId("Laser");
 }
 
 //Update
@@ -43,5 +44,5 @@ void Laser::Update(GameState& state)
 
 void Laser::Draw(GameState& state)
 {
-    Play::DrawSprite(Play::GetSpriteId("Laser"), GetPosition(), 0);
+    Play::DrawSprite(m_spriteId, m_pos, 0);
 }

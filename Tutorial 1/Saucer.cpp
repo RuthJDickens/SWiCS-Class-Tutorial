@@ -3,13 +3,19 @@
 #include "GameObject.h"
 #include "Saucer.h"
 
-const Point2f SAUCER_START_POS = { 1500, 125 };
+const Point2f SAUCER_START_POS = { 1500, 300 };
 const int OFF_SCREEN_TEST = -50;
 
 //Constructor
+Saucer::Saucer()
+{
+    m_spriteId = Play::GetSpriteId("Saucer");
+    m_type = OBJ_SAUCER;
+}
 Saucer::Saucer(Point2f pos)
 {
 	m_pos = pos;
+    m_spriteId = Play::GetSpriteId("Saucer");
     m_type = OBJ_SAUCER;
 }
 
@@ -43,28 +49,23 @@ void Saucer::SpawnWave(GameState& state)
         //Spawning subsequent saucers next to each each and not on top of each other
         if (state.counter >= 1)
         {
-            s->SetPosition({ s->GetPosition().x + s->GetWidth() * state.counter, s->GetPosition().y });
-
-            //After level 5 saucers start spawning lower down the screen
-            if (state.difficulty >= 5 && state.counter % 3)
-            {
-                s->SetPosition({ s->GetPosition().x, s->GetPosition().y + 300 });
-            }
+            s->m_pos.x += s->m_width * state.counter;
             //Saucers remember where they spawned
-            s->SetStartPosition(s->GetPosition());
+            //s->SetStartPosition(s->GetPosition());
         }
         //Every other Saucer moves 1.5x faster
         if (state.counter % 2)
         {
-            s->SetSpeed(s->GetSpeed() * 1.5);
+            s->m_speed *= 1.5;
         }
 
-        s->SetVelocity({ -s->GetSpeed(), 0 });
+        s->m_velocity = { -s->m_speed, 0 };
         state.counter++;
     }
 }
 
 void Saucer::Draw(GameState& state)
 {
-    Play::DrawSpriteRotated(Play::GetSpriteId("Saucer"), GetPosition(), 0, GetRotation(), 1.0f);
+    Play::ColourSprite("Saucer", Play::cWhite);
+    Play::DrawSpriteRotated(m_spriteId, m_pos, 0, m_rot, 1.0f);
 }

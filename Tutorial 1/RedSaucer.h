@@ -2,9 +2,11 @@
 
 class RedSaucer : public Saucer
 {
-public:
-
 private:
 
+public:
+	RedSaucer(Point2f pos);
+	void Draw(GameState& state);
+	static void SpawnWave(GameState& state);
 };
 

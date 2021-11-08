@@ -11,6 +11,7 @@ Player::Player(Point2f pos)
 	m_pos = pos;
     m_velocity = { PLAYER_SPEED, 0 };
     m_type = OBJ_PLAYER;
+    m_spriteId = Play::GetSpriteId("Rocket");
 }
 
 void Player::Update(GameState& state)
@@ -37,5 +38,5 @@ void Player::Update(GameState& state)
 void Player::Draw(GameState& state)
 {
     float yWobble = sin(state.time * PLAY_PI) * 3;
-    Play::DrawSprite(Play::GetSpriteId("Rocket"), { m_pos.x, m_pos.y + yWobble }, (int)(2.0f * state.time));
+    Play::DrawSprite(m_spriteId, { m_pos.x, m_pos.y + yWobble }, (int)(2.0f * state.time));
 }
